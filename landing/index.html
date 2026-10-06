@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scramble Preview — check your cube scramble at a glance</title>
+  <meta name="description" content="Scramble Preview is a browser extension that reads the scramble on any cubing site and shows you what your 3x3 should look like." />
+  <link rel="icon" href="../icons/icon32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" />
+  <style>
+    :root {
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --line: #e6e6e9;
+      --bg: #f5f5f7;
+      --accent: #1f9d55;
+      --U: #ffffff; --D: #f9d71c; --F: #10b23c; --B: #2d5be3; --R: #e3191f; --L: #f58216;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    nav { position: sticky; top: 0; z-index: 10; background: rgba(245,245,247,.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; text-decoration: none; }
+    .brand img { width: 26px; height: 26px; }
+    .nav-links { display: flex; gap: 22px; font-size: 14px; font-weight: 600; }
+    .nav-links a { text-decoration: none; color: var(--muted); }
+    .nav-links a:hover { color: var(--text); }
+
+    .hero { padding: 72px 24px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+    .eyebrow { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: #e4f5ea; padding: 4px 10px; border-radius: 999px; }
+    h1 { font-size: 52px; line-height: 1.05; margin: 16px 0 16px; font-weight: 900; letter-spacing: -1px; }
+    h1 .hl { background: linear-gradient(90deg, var(--F), var(--B)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { font-size: 18px; color: var(--muted); max-width: 520px; margin: 0 0 28px; }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; font: 700 15px "Nunito", sans-serif; padding: 12px 20px; border-radius: 10px; border: 1px solid #d4d4d8; background: #fff; color: var(--text); cursor: pointer; text-decoration: none; transition: transform .1s, box-shadow .15s; }
+    .btn:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); transform: translateY(-1px); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Fake timer site + popup */
+    .stage { position: relative; height: 460px; }
+    .site-mock { position: absolute; left: 0; top: 30px; width: 88%; background: #222; color: #eee; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.18); overflow: hidden; }
+    .site-bar { display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: #333; }
+    .site-bar i { width: 10px; height: 10px; border-radius: 50%; background: #555; display: inline-block; }
+    .site-bar .url { margin-left: 10px; flex: 1; font-size: 12px; color: #aaa; background: #2a2a2a; border-radius: 6px; padding: 3px 10px; }
+    .ext-btn { width: 24px; height: 24px; border-radius: 6px; border: 0; background: transparent; padding: 3px; cursor: pointer; position: relative; }
+    .ext-btn img { width: 18px; height: 18px; display: block; }
+    .ext-btn:hover { background: #444; }
+    .ext-btn.pulse::after { content: ""; position: absolute; inset: -3px; border-radius: 8px; border: 2px solid var(--accent); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.4); } }
+    .site-body { padding: 34px 26px 120px; text-align: center; }
+    .site-body small { color: #999; font-size: 12px; }
+    .site-scramble { font-size: 21px; font-weight: 700; margin: 10px 0 18px; min-height: 64px; letter-spacing: .3px; }
+    .site-timer { font-size: 56px; font-weight: 300; color: #fff; }
+    .site-new { margin-top: 10px; background: #3a3a3a; color: #ddd; border: 0; padding: 7px 14px; border-radius: 6px; font: 600 13px "Nunito", sans-serif; cursor: pointer; }
+    .site-new:hover { background: #474747; }
+
+    .popup { position: absolute; right: 0; top: 76px; width: 300px; background: #fff; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.25); overflow: hidden; transform-origin: top right; transition: opacity .2s, transform .2s; }
+    .popup.closed { opacity: 0; transform: scale(.92); pointer-events: none; }
+    .p-row { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px 4px; font-weight: 600; font-size: 13px; }
+    .p-row svg { flex: none; width: 16px; height: 16px; margin-top: 1px; }
+    .p-scr { flex: 1; word-spacing: 2px; transition: opacity .12s; }
+    .p-foot { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 7px 14px; border-top: 1px solid var(--line); }
+    .p-off { padding: 22px 18px; text-align: center; }
+    .p-off b { display: block; font-size: 14px; }
+    .p-off span { display: block; font-size: 12px; color: var(--muted); margin: 4px 0 12px; }
+
+    /* Cube net */
+    .net { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 3px; padding: 12px 0 16px; transition: opacity .12s; }
+    .net.big { gap: 5px; padding: 6px 0; }
+    .face { display: grid; grid-template-columns: repeat(3, var(--s, 13px)); grid-template-rows: repeat(3, var(--s, 13px)); gap: 1.5px; padding: 1.5px; background: #1b1b1b; }
+    .net.big .face { --s: 30px; gap: 2.5px; padding: 2.5px; }
+    .face.U { grid-area: 1 / 2; } .face.L { grid-area: 2 / 1; } .face.F { grid-area: 2 / 2; }
+    .face.R { grid-area: 2 / 3; } .face.B { grid-area: 2 / 4; } .face.D { grid-area: 3 / 2; }
+    .st { background: var(--U); transition: background-color .18s; }
+    .st.U { background: var(--U); } .st.D { background: var(--D); } .st.F { background: var(--F); }
+    .st.B { background: var(--B); } .st.R { background: var(--R); } .st.L { background: var(--L); }
+
+    .switch { position: relative; display: inline-block; width: 34px; height: 20px; cursor: pointer; }
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .slider { position: absolute; inset: 0; background: #cfcfd4; border-radius: 20px; transition: background .15s; }
+    .slider::before { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+    .switch input:checked + .slider { background: var(--accent); }
+    .switch input:checked + .slider::before { transform: translateX(14px); }
+
+    .hint { position: absolute; right: 0; top: 0; font-size: 13px; font-weight: 700; color: var(--accent); transition: opacity .2s; }
+
+    section { padding: 72px 0; }
+    section.white { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    h2 { font-size: 34px; font-weight: 900; letter-spacing: -.5px; margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 36px; font-size: 17px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+    .step .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #fff; background: var(--accent); margin-bottom: 12px; }
+    .step h3 { margin: 0 0 6px; font-size: 18px; }
+    .step p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* Playground */
+    .play { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+    .panel label { font-size: 13px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 6px; }
+    textarea { width: 100%; min-height: 84px; resize: vertical; font: 600 16px "Nunito", sans-serif; padding: 10px 12px; border-radius: 10px; border: 1px solid #d4d4d8; outline: none; word-spacing: 2px; }
+    textarea:focus { border-color: var(--accent); }
+    .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .btn.sm { padding: 7px 12px; font-size: 13px; border-radius: 8px; }
+    .moves { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 18px; }
+    .mv { font: 700 13px "Nunito", sans-serif; padding: 4px 8px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); cursor: pointer; min-width: 34px; }
+    .mv.done { background: #e4f5ea; border-color: #bfe5cc; color: #146c3b; }
+    .mv.cur { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .mv.bad { background: #fdecea; border-color: #f5c2bd; color: #b3261e; cursor: default; }
+    .progress { font-size: 13px; color: var(--muted); margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+    input[type=range] { flex: 1; accent-color: var(--accent); }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+    .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 5px; border: 1px solid #1b1b1b; vertical-align: -1px; background: var(--c); }
+
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feat { padding: 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); }
+    .feat .ic { font-size: 22px; }
+    .feat h3 { margin: 8px 0 4px; font-size: 17px; }
+    .feat p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    code { font: 13px ui-monospace, "Cascadia Mono", Consolas, monospace; background: #ececf0; padding: 1px 6px; border-radius: 5px; }
+
+    .install { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+    .install ol { padding-left: 20px; font-size: 16px; }
+    .install li { margin-bottom: 10px; }
+    .shot { width: 100%; max-width: 380px; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,.12); display: block; margin: 0 auto; }
+
+    details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    summary { font-weight: 800; cursor: pointer; font-size: 16px; }
+    details p { color: var(--muted); margin: 8px 0 0; }
+
+    footer { padding: 30px 0 40px; color: var(--muted); font-size: 13px; text-align: center; }
+
+    @media (max-width: 860px) {
+      .hero, .play, .install { grid-template-columns: 1fr; }
+      .steps, .features { grid-template-columns: 1fr; }
+      h1 { font-size: 40px; }
+      .nav-links { display: none; }
+      .net.big .face { --s: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#"><img src="../icons/icon48.png" alt="" />Scramble Preview</a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#try">Try it</a>
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="wrap hero">
+    <div>
+      <span class="eyebrow">Browser extension · 3x3</span>
+      <h1>Did you scramble it <span class="hl">right?</span></h1>
+      <p class="lead">Scramble Preview reads the scramble on your timer or trainer site and shows the cube it should give you, laid out flat. Compare it with the cube in your hands and you'll know straight away if you made a mistake.</p>
+      <div class="cta">
+        <a class="btn primary" href="#install">Get the extension</a>
+        <a class="btn" href="#try">Try it here</a>
+      </div>
+    </div>
+
+    <div class="stage" aria-label="Interactive demo">
+      <div class="hint" id="hint">Click the extension icon ↓</div>
+      <div class="site-mock">
+        <div class="site-bar">
+          <i></i><i></i><i></i>
+          <span class="url">rubikstrainer.com/cross2f2l</span>
+          <button class="ext-btn pulse" id="ext-btn" title="Scramble Preview"><img src="../icons/icon32.png" alt="Scramble Preview" /></button>
+        </div>
+        <div class="site-body">
+          <small>SCRAMBLE</small>
+          <div class="site-scramble" id="site-scramble"></div>
+          <div class="site-timer">0.00</div>
+          <button class="site-new" id="site-new">New scramble</button>
+        </div>
+      </div>
+
+      <div class="popup closed" id="popup">
+        <div class="p-off" id="p-off">
+          <b>Not Enabled</b>
+          <span>Turn on to detect scrambles on rubikstrainer.com</span>
+          <label class="switch"><input type="checkbox" id="p-toggle" /><span class="slider"></span></label>
+        </div>
+        <div id="p-on" hidden>
+          <div class="p-row">
+            <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.6" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.6" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.6" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.6" fill="currentColor"/></svg>
+            <div class="p-scr" id="p-scr"></div>
+          </div>
+          <div class="net" id="p-net"></div>
+        </div>
+        <div class="p-foot"><span id="p-status">Disabled on this site</span><span>⚙</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="white" id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="sub">Three steps, and you only do the first one once per site.</p>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><h3>Turn it on for the site</h3><p>Every site starts off. Open the popup on your timer or trainer and switch it on. It stays on for that site.</p></div>
+        <div class="step"><div class="n">2</div><h3>It finds the scramble</h3><p>It looks for the scramble text on the page by itself. If it picks the wrong thing, use ⚙ to type a CSS selector or click the scramble on the page.</p></div>
+        <div class="step"><div class="n">3</div><h3>Compare with your cube</h3><p>Hold your cube with white on top and green in front, and check each face against the preview. When the site shows a new scramble, the preview updates.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="try">
+    <div class="wrap">
+      <h2>Try it here</h2>
+      <p class="sub">Type or paste a scramble below. Click a move, or drag the slider, to see the cube after that move.</p>
+      <div class="play">
+        <div class="panel">
+          <label for="pg-input">Scramble</label>
+          <textarea id="pg-input" spellcheck="false">L2 U2 B U2 L2 F R2 F R2 B2 U' B' R2 F R' B U2 L F2</textarea>
+          <div class="row">
+            <button class="btn sm primary" id="pg-random">🎲 Random scramble</button>
+            <button class="btn sm" id="pg-play">▶ Play</button>
+            <button class="btn sm" id="pg-reset">Solved</button>
+          </div>
+          <div class="moves" id="pg-moves"></div>
+          <div class="progress">
+            <span id="pg-count">0 / 0</span>
+            <input type="range" id="pg-range" min="0" max="0" value="0" />
+          </div>
+        </div>
+        <div class="panel">
+          <div class="net big" id="pg-net"></div>
+          <div class="legend">
+            <span style="--c:var(--U)">U white</span><span style="--c:var(--F)">F green</span><span style="--c:var(--R)">R red</span>
+            <span style="--c:var(--D)">D yellow</span><span style="--c:var(--B)">B blue</span><span style="--c:var(--L)">L orange</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="white" id="features">
+    <div class="wrap">
+      <h2>Features</h2>
+      <p class="sub">Small, quick, and it stays out of the way.</p>
+      <div class="features">
+        <div class="feat"><div class="ic">🔒</div><h3>Off until you turn it on</h3><p>It doesn't read any site until you enable it there, and it only runs when you open the popup.</p></div>
+        <div class="feat"><div class="ic">🎯</div><h3>Selector for each site</h3><p>Each site can have its own CSS selector, like <code>#scramble</code>, or you can click the scramble on the page to set it.</p></div>
+        <div class="feat"><div class="ic">🔄</div><h3>Updates with the site</h3><p>While the popup is open, the preview changes whenever the site shows a new scramble.</p></div>
+        <div class="feat"><div class="ic">✏️</div><h3>Edit the scramble</h3><p>Click the scramble in the popup to fix a move or paste a different one.</p></div>
+        <div class="feat"><div class="ic">🧩</div><h3>Full notation</h3><p>Face turns, <code>'</code> <code>2</code> <code>3</code>, wide moves (<code>Rw</code>, <code>r</code>), slices (<code>M E S</code>) and rotations (<code>x y z</code>).</p></div>
+        <div class="feat"><div class="ic">📴</div><h3>Nothing sent anywhere</h3><p>The cube is worked out inside your browser. No account, no tracking, no servers.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap install">
+      <div>
+        <h2>Install</h2>
+        <p class="sub">Works in Chrome, Edge, Brave and other Chromium browsers.</p>
+        <ol>
+          <li>Download or clone the repository.</li>
+          <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and turn on <b>Developer mode</b>.</li>
+          <li>Click <b>Load unpacked</b> and pick the project folder.</li>
+          <li>Go to a page such as <a href="https://www.rubikstrainer.com/cross2f2l" target="_blank" rel="noopener">rubikstrainer.com/cross2f2l</a>, open the extension and turn it on.</li>
+        </ol>
+      </div>
+      <img class="shot" src="../screenshots/preview.png" alt="Scramble Preview popup showing the cube net" />
+    </div>
+  </section>
+
+  <section class="white">
+    <div class="wrap">
+      <h2>FAQ</h2>
+      <details><summary>Which way should I hold the cube?</summary><p>White on top and green in front, which is the WCA scrambling orientation. The preview shows U on top, L F R B across the middle, and D at the bottom.</p></details>
+      <details><summary>It didn't find the scramble on my site.</summary><p>Open ⚙ and click <b>Pick on page</b>, then click the scramble text. You can also type a CSS selector yourself. It's saved for that site only.</p></details>
+      <details><summary>Why is every site off at first?</summary><p>So the extension never reads pages you didn't ask it to. You turn it on yourself for each site you use.</p></details>
+      <details><summary>Does it work for 2x2 or 4x4?</summary><p>No, only 3x3 for now.</p></details>
+    </div>
+  </section>
+
+  <footer>Scramble Preview · made for cubers</footer>
+
+  <script src="../cube.js"></script>
+  <script>
+    const ORDER = ['U', 'L', 'F', 'R', 'B', 'D'];
+    const $ = (id) => document.getElementById(id);
+
+    function drawNet(el, text) {
+      const { faces } = Cube.stateFromScramble(text);
+      if (!el.childElementCount) {
+        for (const f of ORDER) {
+          const face = document.createElement('div');
+          face.className = 'face ' + f;
+          for (let i = 0; i < 9; i++) face.appendChild(document.createElement('div'));
+          el.appendChild(face);
+        }
+      }
+      ORDER.forEach((f, fi) => {
+        const cells = el.children[fi].children;
+        faces[f].flat().forEach((c, i) => (cells[i].className = 'st ' + c));
+      });
+    }
+
+    function randomScramble(n = 20) {
+      const axes = [['U', 'D'], ['R', 'L'], ['F', 'B']];
+      const sfx = ['', "'", '2'];
+      const out = [];
+      let lastAxis = -1, lastFace = null;
+      while (out.length < n) {
+        const a = Math.floor(Math.random() * 3);
+        const f = axes[a][Math.floor(Math.random() * 2)];
+        if (f === lastFace) continue;
+        if (a === lastAxis && out.length > 1 && axes[a].includes(out[out.length - 2][0])) continue;
+        out.push(f + sfx[Math.floor(Math.random() * 3)]);
+        lastAxis = a; lastFace = f;
+      }
+      return out.join(' ');
+    }
+
+    // Hero demo
+    let siteScramble = "L2 U2 B U2 L2 F R2 F R2 B2 U' B' R2 F R' B U2 L F2";
+    let enabled = false;
+    $('site-scramble').textContent = siteScramble;
+
+    function syncPopup(blink) {
+      $('p-off').hidden = enabled;
+      $('p-on').hidden = !enabled;
+      $('p-status').textContent = enabled ? 'Auto: #scramble' : 'Disabled on this site';
+      if (!enabled) return;
+      const update = () => { $('p-scr').textContent = siteScramble; drawNet($('p-net'), siteScramble); };
+      if (blink) {
+        $('p-scr').style.opacity = 0; $('p-net').style.opacity = 0;
+        setTimeout(() => { update(); $('p-scr').style.opacity = 1; $('p-net').style.opacity = 1; }, 200);
+      } else update();
+    }
+
+    $('ext-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      $('popup').classList.toggle('closed');
+      $('ext-btn').classList.remove('pulse');
+      $('hint').textContent = enabled ? 'Click "New scramble" on the site' : 'Turn it on for this site';
+    });
+    $('p-toggle').addEventListener('change', (e) => {
+      enabled = e.target.checked;
+      syncPopup(false);
+      $('hint').textContent = 'Now click "New scramble" on the site';
+    });
+    $('site-new').addEventListener('click', () => {
+      siteScramble = randomScramble();
+      $('site-scramble').textContent = siteScramble;
+      if (enabled) { syncPopup(true); $('hint').style.opacity = 0; }
+    });
+    document.addEventListener('click', (e) => {
+      if (!$('popup').contains(e.target) && !e.target.closest('.site-mock')) $('popup').classList.add('closed');
+    });
+
+    // Playground
+    let tokens = [], step = 0, playTimer = null;
+
+    function renderPlayground() {
+      const parsed = Cube.parseScramble($('pg-input').value);
+      tokens = parsed.tokens;
+      const valid = tokens.filter((t) => Cube.parseMove(t));
+      step = Math.min(step, valid.length);
+      const moves = $('pg-moves');
+      moves.textContent = '';
+      let vi = 0;
+      tokens.forEach((t) => {
+        const b = document.createElement('button');
+        b.textContent = t;
+        if (!Cube.parseMove(t)) { b.className = 'mv bad'; b.title = 'Not a valid move'; b.disabled = true; }
+        else {
+          const idx = ++vi;
+          b.className = 'mv' + (idx < step ? ' done' : idx === step ? ' cur' : '');
+          b.addEventListener('click', () => { stopPlay(); step = idx; renderPlayground(); });
+        }
+        moves.appendChild(b);
+      });
+      $('pg-range').max = valid.length;
+      $('pg-range').value = step;
+      $('pg-count').textContent = `${step} / ${valid.length}`;
+      drawNet($('pg-net'), valid.slice(0, step).join(' '));
+    }
+
+    function stopPlay() { clearInterval(playTimer); playTimer = null; $('pg-play').textContent = '▶ Play'; }
+
+    $('pg-input').addEventListener('input', () => { stopPlay(); step = Infinity; renderPlayground(); });
+    $('pg-range').addEventListener('input', (e) => { stopPlay(); step = +e.target.value; renderPlayground(); });
+    $('pg-random').addEventListener('click', () => { stopPlay(); $('pg-input').value = randomScramble(); step = Infinity; renderPlayground(); });
+    $('pg-reset').addEventListener('click', () => { stopPlay(); step = 0; renderPlayground(); });
+    $('pg-play').addEventListener('click', () => {
+      if (playTimer) return stopPlay();
+      if (step >= +$('pg-range').max) step = 0;
+      $('pg-play').textContent = '❚❚ Pause';
+      renderPlayground();
+      playTimer = setInterval(() => {
+        if (step >= +$('pg-range').max) return stopPlay();
+        step++; renderPlayground();
+      }, 450);
+    });
+
+    step = Infinity;
+    renderPlayground();
+  </script>
+</body>
+</html>

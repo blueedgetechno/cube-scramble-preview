@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scramble Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main class="card">
+    <section id="off" class="off hidden">
+      <p class="off-title">Not Enabled</p>
+      <p class="off-text">Turn on to detect scrambles on <b id="off-host"></b>.</p>
+      <label class="switch off-switch" title="Enable on this site">
+        <input type="checkbox" id="enabled" class="enable-toggle" />
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <section id="on" class="hidden">
+      <div class="scramble-row">
+        <svg class="icon dice" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3.5" y="3.5" width="17" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="8.5" cy="8.5" r="1.6" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.6" fill="currentColor"/>
+          <circle cx="8.5" cy="15.5" r="1.6" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.6" fill="currentColor"/>
+        </svg>
+        <div id="scramble" class="scramble" contenteditable="true" spellcheck="false" title="Click to edit"></div>
+        <button id="refresh" class="icon-btn" title="Re-detect from page">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div id="warning" class="warning hidden"></div>
+      <div id="net" class="net"></div>
+    </section>
+
+    <section id="settings" class="settings hidden">
+      <div class="setting-row">
+        <span class="label inline">Enabled on <b id="settings-host"></b></span>
+        <label class="switch" title="Enable on this site">
+          <input type="checkbox" id="enabled-settings" class="enable-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <label for="selector" class="label">CSS selector</label>
+      <input id="selector" class="input" type="text" placeholder="Auto-detect (e.g. #scramble)" spellcheck="false" />
+      <div class="btns">
+        <button id="save" class="btn primary">Save</button>
+        <button id="pick" class="btn">Pick on page</button>
+        <button id="reset" class="btn ghost">Auto</button>
+      </div>
+    </section>
+
+    <footer class="card-foot">
+      <span id="status" class="status"></span>
+      <button id="gear" class="icon-btn" title="Settings">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+    </footer>
+  </main>
+
+  <script src="cube.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
