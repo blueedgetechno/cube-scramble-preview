@@ -16,7 +16,9 @@ Browser extension (Chrome / Brave / Edge / Firefox, Manifest V3) that reads a 3x
 
 For example, you can use it on [rubikstrainer.com/cross2f2l](https://www.rubikstrainer.com/cross2f2l). The scramble there is picked up automatically, with no selector needed.
 
-To see what it does, open [docs/index.html](docs/index.html) in a browser. It has a demo of the popup and a scramble playground.
+To see what it does, open the live demo at **[blueedgetechno.github.io/cube-scramble-preview](https://blueedgetechno.github.io/cube-scramble-preview/)**, or open [docs/index.html](docs/index.html) in a browser. It has a demo of the popup and a scramble playground.
+
+[![Live demo](https://img.shields.io/badge/demo-live-1f9d55?style=flat-square&logo=githubpages&logoColor=white)](https://blueedgetechno.github.io/cube-scramble-preview/)
 
 <p align="center">
   <img src="screenshots/preview.png" alt="Cube preview for a detected scramble" width="360" />
