@@ -38,7 +38,13 @@
     .nav-links a:hover { color: var(--text); }
 
     .hero { padding: 72px 24px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
-    .eyebrow { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: #e4f5ea; padding: 4px 10px; border-radius: 999px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: #e4f5ea; padding: 4px 12px 4px 6px; border-radius: 999px; }
+    .browsers { display: inline-flex; align-items: center; }
+    .browsers img { width: 18px; height: 18px; margin-left: -5px; transition: margin .2s ease, transform .2s ease; }
+    .browsers img:first-child { margin-left: 0; }
+    .eyebrow:hover .browsers img { margin-left: 2px; }
+    .eyebrow:hover .browsers img:first-child { margin-left: 0; }
+    .browsers img:hover { transform: translateY(-2px) scale(1.15); }
     h1 { font-size: 52px; line-height: 1.05; margin: 16px 0 16px; font-weight: 900; letter-spacing: -1px; }
     h1 .hl { background: linear-gradient(90deg, var(--F), var(--B)); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .lead { font-size: 18px; color: var(--muted); max-width: 520px; margin: 0 0 28px; }
@@ -48,16 +54,23 @@
     .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 
     /* Fake timer site + popup */
-    .stage { position: relative; height: 460px; }
-    .site-mock { position: absolute; left: 0; top: 30px; width: 88%; background: #222; color: #eee; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.18); overflow: hidden; }
+    .stage { position: relative; height: 500px; }
+    .site-mock { position: absolute; left: 0; top: 64px; width: 88%; background: #222; color: #eee; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.18); overflow: hidden; }
     .site-bar { display: flex; align-items: center; gap: 6px; padding: 10px 12px; background: #333; }
     .site-bar i { width: 10px; height: 10px; border-radius: 50%; background: #555; display: inline-block; }
     .site-bar .url { margin-left: 10px; flex: 1; font-size: 12px; color: #aaa; background: #2a2a2a; border-radius: 6px; padding: 3px 10px; }
     .ext-btn { width: 24px; height: 24px; border-radius: 6px; border: 0; background: transparent; padding: 3px; cursor: pointer; position: relative; }
     .ext-btn img { width: 18px; height: 18px; display: block; }
     .ext-btn:hover { background: #444; }
-    .ext-btn.pulse::after { content: ""; position: absolute; inset: -3px; border-radius: 8px; border: 2px solid var(--accent); animation: pulse 1.4s infinite; }
-    @keyframes pulse { 0% { opacity: 1; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.4); } }
+    .ext-btn.attn { animation: hop 1.2s cubic-bezier(.3,0,.3,1) infinite; }
+    .ext-btn.attn::after { content: ""; position: absolute; inset: -3px; border-radius: 8px; border: 2px solid var(--accent); animation: ring 1.2s ease-out infinite; }
+    @keyframes hop {
+      0%, 55%, 100% { transform: translateY(0) scale(1); }
+      15% { transform: translateY(-7px) scale(1.12); }
+      30% { transform: translateY(0) scale(.94, 1.06); }
+      40% { transform: translateY(-3px) scale(1.04); }
+    }
+    @keyframes ring { 0% { opacity: .9; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.6); } }
     .site-body { padding: 34px 26px 120px; text-align: center; }
     .site-body small { color: #999; font-size: 12px; }
     .site-scramble { font-size: 21px; font-weight: 700; margin: 10px 0 18px; min-height: 64px; letter-spacing: .3px; }
@@ -65,7 +78,7 @@
     .site-new { margin-top: 10px; background: #3a3a3a; color: #ddd; border: 0; padding: 7px 14px; border-radius: 6px; font: 600 13px "Nunito", sans-serif; cursor: pointer; }
     .site-new:hover { background: #474747; }
 
-    .popup { position: absolute; right: 0; top: 76px; width: 300px; background: #fff; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.25); overflow: hidden; transform-origin: top right; transition: opacity .2s, transform .2s; }
+    .popup { position: absolute; right: 0; top: 110px; width: 300px; background: #fff; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.25); overflow: hidden; transform-origin: top right; transition: opacity .2s, transform .2s; }
     .popup.closed { opacity: 0; transform: scale(.92); pointer-events: none; }
     .p-row { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px 4px; font-weight: 600; font-size: 13px; }
     .p-row svg { flex: none; width: 16px; height: 16px; margin-top: 1px; }
@@ -73,7 +86,7 @@
     .p-foot { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 7px 14px; border-top: 1px solid var(--line); }
     .p-off { padding: 22px 18px; text-align: center; }
     .p-off b { display: block; font-size: 14px; }
-    .p-off span { display: block; font-size: 12px; color: var(--muted); margin: 4px 0 12px; }
+    .p-off .p-msg { display: block; font-size: 12px; color: var(--muted); margin: 4px 0 12px; }
 
     /* Cube net */
     .net { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 3px; padding: 12px 0 16px; transition: opacity .12s; }
@@ -93,7 +106,17 @@
     .switch input:checked + .slider { background: var(--accent); }
     .switch input:checked + .slider::before { transform: translateX(14px); }
 
-    .hint { position: absolute; right: 0; top: 0; font-size: 13px; font-weight: 700; color: var(--accent); transition: opacity .2s; }
+    /* Guide arrow that points at the next thing to click */
+    .guide { position: absolute; z-index: 5; display: flex; align-items: center; gap: 4px; pointer-events: none; opacity: 0; transition: opacity .2s, left .35s ease, top .35s ease; }
+    .guide.show { opacity: 1; }
+    .guide.down { flex-direction: column; transform: translate(-50%, -100%); }
+    .guide.right { flex-direction: row; transform: translate(-100%, -50%); }
+    .guide-label { white-space: nowrap; background: var(--accent); color: #fff; font-size: 13px; font-weight: 800; padding: 5px 11px; border-radius: 999px; box-shadow: 0 6px 18px rgba(31,157,85,.35); }
+    .guide svg { width: 30px; height: 30px; color: var(--accent); filter: drop-shadow(0 2px 3px rgba(0,0,0,.2)); }
+    .guide.down svg { animation: nudge-down .9s ease-in-out infinite; }
+    .guide.right svg { transform: rotate(-90deg); animation: nudge-right .9s ease-in-out infinite; }
+    @keyframes nudge-down { 0%, 100% { transform: translateY(-3px); } 50% { transform: translateY(5px); } }
+    @keyframes nudge-right { 0%, 100% { transform: rotate(-90deg) translateY(-3px); } 50% { transform: rotate(-90deg) translateY(5px); } }
 
     section { padding: 72px 0; }
     section.white { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -130,10 +153,16 @@
     .feat h3 { margin: 8px 0 4px; font-size: 17px; }
     .feat p { margin: 0; color: var(--muted); font-size: 14.5px; }
     code { font: 13px ui-monospace, "Cascadia Mono", Consolas, monospace; background: #ececf0; padding: 1px 6px; border-radius: 5px; }
+    .clone { position: relative; margin: 8px 0 4px; background: #1d1d1f; color: #e8e8ea; border-radius: 10px; padding: 12px 70px 12px 14px; overflow-x: auto; }
+    .clone code { background: none; color: inherit; padding: 0; white-space: nowrap; }
+    .copy { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: 700 12px "Nunito", sans-serif; background: #3a3a3c; color: #fff; border: 0; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+    .copy:hover { background: #4a4a4d; }
 
     .install { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
     .install ol { padding-left: 20px; font-size: 16px; }
     .install li { margin-bottom: 10px; }
+    .ff-note { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 14px 0 0; }
+    .ff-note img { width: 20px; height: 20px; flex: none; margin-top: 1px; }
     .shot { width: 100%; max-width: 380px; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,.12); display: block; margin: 0 auto; }
 
     details { border-bottom: 1px solid var(--line); padding: 14px 0; }
@@ -160,13 +189,22 @@
         <a href="#try">Try it</a>
         <a href="#features">Features</a>
         <a href="#install">Install</a>
+        <a href="https://github.com/blueedgetechno/cube-scramble-preview" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </div>
   </nav>
 
   <header class="wrap hero">
     <div>
-      <span class="eyebrow">Browser extension · 3x3</span>
+      <span class="eyebrow">
+        <span class="browsers" aria-label="Works in Chrome, Brave, Edge and Firefox">
+          <img src="browsers/chrome.svg" alt="Chrome" title="Chrome" />
+          <img src="browsers/brave.svg" alt="Brave" title="Brave" />
+          <img src="browsers/edge.svg" alt="Edge" title="Edge" />
+          <img src="browsers/firefox.svg" alt="Firefox" title="Firefox" />
+        </span>
+        Browser extension · 3x3
+      </span>
       <h1>Did you scramble it <span class="hl">right?</span></h1>
       <p class="lead">Scramble Preview reads the scramble on your timer or trainer site and shows the cube it should give you, laid out flat. Compare it with the cube in your hands and you'll know straight away if you made a mistake.</p>
       <div class="cta">
@@ -176,12 +214,15 @@
     </div>
 
     <div class="stage" aria-label="Interactive demo">
-      <div class="hint" id="hint">Click the extension icon ↓</div>
+      <div class="guide down" id="guide" aria-hidden="true">
+        <span class="guide-label" id="guide-label"></span>
+        <svg viewBox="0 0 24 24"><path d="M12 3v15m0 0-6-6m6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
       <div class="site-mock">
         <div class="site-bar">
           <i></i><i></i><i></i>
           <span class="url">rubikstrainer.com/cross2f2l</span>
-          <button class="ext-btn pulse" id="ext-btn" title="Scramble Preview"><img src="../icons/icon32.png" alt="Scramble Preview" /></button>
+          <button class="ext-btn attn" id="ext-btn" title="Scramble Preview"><img src="../icons/icon32.png" alt="Scramble Preview" /></button>
         </div>
         <div class="site-body">
           <small>SCRAMBLE</small>
@@ -194,8 +235,8 @@
       <div class="popup closed" id="popup">
         <div class="p-off" id="p-off">
           <b>Not Enabled</b>
-          <span>Turn on to detect scrambles on rubikstrainer.com</span>
-          <label class="switch"><input type="checkbox" id="p-toggle" /><span class="slider"></span></label>
+          <span class="p-msg">Turn on to detect scrambles on rubikstrainer.com</span>
+          <label class="switch" id="p-switch"><input type="checkbox" id="p-toggle" /><span class="slider"></span></label>
         </div>
         <div id="p-on" hidden>
           <div class="p-row">
@@ -270,13 +311,16 @@
     <div class="wrap install">
       <div>
         <h2>Install</h2>
-        <p class="sub">Works in Chrome, Edge, Brave and other Chromium browsers.</p>
+        <p class="sub">Works in Chrome, Brave, Edge and other Chromium browsers, and in Firefox.</p>
         <ol>
-          <li>Download or clone the repository.</li>
-          <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and turn on <b>Developer mode</b>.</li>
+          <li>Clone or download the repository from <a href="https://github.com/blueedgetechno/cube-scramble-preview" target="_blank" rel="noopener">GitHub</a>:
+            <pre class="clone"><code id="clone-cmd">git clone https://github.com/blueedgetechno/cube-scramble-preview.git</code><button class="copy" id="copy-clone" title="Copy">Copy</button></pre>
+          </li>
+          <li>Open <code>chrome://extensions</code> (or <code>brave://extensions</code>, <code>edge://extensions</code>) and turn on <b>Developer mode</b>.</li>
           <li>Click <b>Load unpacked</b> and pick the project folder.</li>
           <li>Go to a page such as <a href="https://www.rubikstrainer.com/cross2f2l" target="_blank" rel="noopener">rubikstrainer.com/cross2f2l</a>, open the extension and turn it on.</li>
         </ol>
+        <p class="ff-note"><img src="browsers/firefox.svg" alt="" /> <span><b>Firefox:</b> open <code>about:debugging#/runtime/this-firefox</code>, click <b>Load Temporary Add-on…</b> and choose <code>manifest.json</code>.</span></p>
       </div>
       <img class="shot" src="../screenshots/preview.png" alt="Scramble Preview popup showing the cube net" />
     </div>
@@ -292,7 +336,7 @@
     </div>
   </section>
 
-  <footer>Scramble Preview · made for cubers</footer>
+  <footer>Scramble Preview · made for cubers · <a href="https://github.com/blueedgetechno/cube-scramble-preview" target="_blank" rel="noopener">GitHub</a></footer>
 
   <script src="../cube.js"></script>
   <script>
@@ -351,21 +395,71 @@
     $('ext-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       $('popup').classList.toggle('closed');
-      $('ext-btn').classList.remove('pulse');
-      $('hint').textContent = enabled ? 'Click "New scramble" on the site' : 'Turn it on for this site';
+      updateGuide();
     });
     $('p-toggle').addEventListener('change', (e) => {
       enabled = e.target.checked;
       syncPopup(false);
-      $('hint').textContent = 'Now click "New scramble" on the site';
+      updateGuide();
     });
     $('site-new').addEventListener('click', () => {
       siteScramble = randomScramble();
       $('site-scramble').textContent = siteScramble;
-      if (enabled) { syncPopup(true); $('hint').style.opacity = 0; }
+      if (enabled) { syncPopup(true); triedNew = true; }
+      updateGuide();
     });
     document.addEventListener('click', (e) => {
-      if (!$('popup').contains(e.target) && !e.target.closest('.site-mock')) $('popup').classList.add('closed');
+      if (!$('popup').contains(e.target) && !e.target.closest('.site-mock')) {
+        $('popup').classList.add('closed');
+        updateGuide();
+      }
+    });
+
+    // Walk-through: point at the next thing to click.
+    let triedNew = false, guideTimer = null;
+    function currentStep() {
+      const open = !$('popup').classList.contains('closed');
+      if (!open) return triedNew ? null : { el: $('ext-btn'), dir: 'down', text: 'Click the extension' };
+      if (!enabled) return { el: $('p-switch'), dir: 'right', text: 'Turn it on' };
+      if (!triedNew) return { el: $('site-new'), dir: 'right', text: 'Get a new scramble' };
+      return null;
+    }
+    function placeGuide() {
+      const step = currentStep();
+      const g = $('guide');
+      $('ext-btn').classList.toggle('attn', !!step && step.el === $('ext-btn'));
+      if (!step) { g.classList.remove('show'); return; }
+      const stage = document.querySelector('.stage').getBoundingClientRect();
+      const r = step.el.getBoundingClientRect();
+      g.className = 'guide show ' + step.dir;
+      $('guide-label').textContent = step.text;
+      if (step.dir === 'down') {
+        g.style.left = r.left - stage.left + r.width / 2 + 'px';
+        g.style.top = r.top - stage.top - 4 + 'px';
+      } else {
+        g.style.left = r.left - stage.left - 6 + 'px';
+        g.style.top = r.top - stage.top + r.height / 2 + 'px';
+      }
+    }
+    function updateGuide() {
+      $('guide').classList.remove('show');
+      clearTimeout(guideTimer);
+      // wait for the popup's open/close transition before measuring
+      guideTimer = setTimeout(placeGuide, 230);
+    }
+    window.addEventListener('resize', placeGuide);
+    window.addEventListener('load', placeGuide);
+    document.fonts && document.fonts.ready.then(placeGuide);
+    new ResizeObserver(placeGuide).observe(document.querySelector('.stage'));
+    placeGuide();
+
+    $('copy-clone').addEventListener('click', async () => {
+      const btn = $('copy-clone');
+      try {
+        await navigator.clipboard.writeText($('clone-cmd').textContent);
+        btn.textContent = 'Copied!';
+      } catch { btn.textContent = 'Press Ctrl+C'; getSelection().selectAllChildren($('clone-cmd')); }
+      setTimeout(() => (btn.textContent = 'Copy'), 1500);
     });
 
     // Playground

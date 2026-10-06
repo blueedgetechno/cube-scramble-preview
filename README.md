@@ -1,6 +1,6 @@
 # Scramble Preview
 
-Browser extension (Chrome / Edge, Manifest V3) that reads a 3x3 scramble from the current page and shows the scrambled cube as an unfolded net (U on top, L F R B across, D below; white top, green front). Use it to check that you scrambled your cube correctly before you start solving.
+Browser extension (Chrome / Brave / Edge / Firefox, Manifest V3) that reads a 3x3 scramble from the current page and shows the scrambled cube as an unfolded net (U on top, L F R B across, D below; white top, green front). Use it to check that you scrambled your cube correctly before you start solving.
 
 For example, you can use it on [rubikstrainer.com/cross2f2l](https://www.rubikstrainer.com/cross2f2l). The scramble there is picked up automatically, with no selector needed.
 
@@ -16,9 +16,15 @@ To see what it does, open [landing/index.html](landing/index.html) in a browser.
 
 ## Install
 
-1. Open `chrome://extensions` (or `edge://extensions`) and turn on **Developer mode**.
-2. Click **Load unpacked** and select this folder.
-3. Pin the extension to the toolbar if you like.
+1. Clone the repository (or [download it from GitHub](https://github.com/blueedgetechno/cube-scramble-preview)):
+   ```sh
+   git clone https://github.com/blueedgetechno/cube-scramble-preview.git
+   ```
+2. Open `chrome://extensions` (or `brave://extensions`, `edge://extensions`) and turn on **Developer mode**.
+3. Click **Load unpacked** and select the cloned folder.
+4. Pin the extension to the toolbar if you like.
+
+**Firefox:** open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and choose `manifest.json`. Temporary add-ons are removed when Firefox restarts.
 
 ## Use
 
