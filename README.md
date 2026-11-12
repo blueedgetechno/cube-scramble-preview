@@ -52,3 +52,36 @@ Works on sites such as [rubikstrainer.com/cross2f2l](https://www.rubikstrainer.c
 Supported notation: `R U F L D B` with `'`, `2` and `3`, wide moves (`Rw`, `r`), slice moves (`M E S`) and rotations (`x y z`).
 
 Auto-detection first looks at visible elements whose id or class contains "scramble". If none match, it uses the longest line of page text that is mostly moves.
+
+## SVG API (Next.js / Vercel)
+
+The Next.js endpoint reuses the extension's cube model and colors. It returns an
+unfolded cube net with a transparent background, using white up and green front
+as the starting orientation (a scramble changes the stickers, not the view).
+The default SVG size is 161 by 121 pixels, with square corners and 1.5-pixel
+gaps between faces.
+
+```sh
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000/api/scramble?algorithm=R%20U%20R%27`, or construct a
+URL with `'/api/scramble?algorithm=' + encodeURIComponent(algorithm)`.
+Use `algorithm=` for a solved cube. All notation listed above is supported.
+Missing or repeated parameters, invalid moves, and algorithms over 4096
+characters return HTTP 400 with a JSON error instead of a partial scramble.
+GET and HEAD are supported; other methods return HTTP 405.
+
+Run `npm test` while the server is running to test the endpoint. Set
+`TEST_BASE_URL` to test a different server. For production, run `npm run build`
+then `npm start`.
+
+To deploy, import this repository into Vercel, select the Next.js framework
+preset and leave the root directory at the repository root. The endpoint will
+be available at `https://<your-project>.vercel.app/api/scramble?algorithm=...`.
+The browser extension and static demo still work independently.
+
+CORS allows requests from any origin without credentials, including error
+responses. OPTIONS preflight requests return HTTP 204 and allow GET, HEAD and
+the Content-Type request header.
